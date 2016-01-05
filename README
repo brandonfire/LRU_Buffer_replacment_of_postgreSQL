@@ -1,0 +1,23 @@
+In this project, I changed the data structure for buffer selection. Then I implement the LRU algorithm to replace the clock algorithm
+
+buf_internals.h: 
+In order to implement LRU. it is important to build a double linked list. So I added a prev pointer to the BufferDesc structure.
+
+buf_init.c: 
+Because the bufdescriptor is now double linked. We need initial the previou pointer and point to the previous buffer in the bufferlist and also need to define the two ends of the linked list.
+
+bufmgr.c: 
+Now we have double linked list, to implement LRU. everytime we read a buffer, we marked it for use. After we unpin it, we delete it from the freelist and add it 
+to the tail of the linked list. Every time we need a buffer, we begin from the head and move on to the tail to check the refcount==0 and grab it.
+Thus this will insure we replace the least recently used page. 
+
+So in function unpinbuffer I add a check condition if refcount==0. we then delete it from the freelist and add to the tail 
+Everytime I release the buf, I will delete it from the freelist and call StategyFreeBuffer to put it back to tail.
+
+Freelist.c: 
+I have to modify the clock algorithm. Because this is now a FIFO queue considering the most recently used buffer will be move to the tail. so everytime I read from the head to find a buf with refcount ==0. 
+If no one use the buf, we grab it. In the StategyFreeBuffer function, it is important to define how to put the buf back into the tail of double linked list.
+
+All the important code modifed part is marked by My name"chengbin"
+
+
